@@ -1,0 +1,74 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.model_selection import GridSearchCV
+from sklearn.feature_extraction.text import CountVectorizer
+import os
+
+os.chdir("D:/B.tech{CS-DS}/OASIS INFOBYTE/TASKS--/Task_4/Email-Spam-Detector-master")
+data=pd.read_csv("spam.csv")
+print(data.head(5))
+print('-------------------------------------------------------------')
+print(data.tail(5))
+print('-------------------------------------------------------------')
+print(data.info())
+print('-------------------------------------------------------------')
+print(data.describe())
+print('-------------------------------------------------------------')
+print(data.isnull())
+print('-------------------------------------------------------------')
+# Split the data into features and target
+X = data['EmailText'].values
+y = data['Label'].values
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(X_train)
+print('-------------------------------------------------------------')
+print(X_test)
+print('-------------------------------------------------------------')
+
+# Converting String to Integer
+cv = CountVectorizer()  
+X_train = cv.fit_transform(X_train)
+X_test = cv.transform(X_test)
+print(X_train)
+print('-------------------------------------------------------------')
+print(X_test)
+
+# Vectorize the text data using TF-IDF
+vectorizer = TfidfVectorizer()
+X_train_tfidf = vectorizer.fit_transform(X_train)
+X_test_tfidf = vectorizer.transform(X_test)
+
+# Initialize and train the Naive Bayes classifier
+nb_classifier = MultinomialNB()
+nb_classifier.fit(X_train_tfidf, y_train)
+
+# Predictions
+y_pred_train = nb_classifier.predict(X_train_tfidf)
+y_pred_test = nb_classifier.predict(X_test_tfidf)
+
+# Evaluate the model
+train_accuracy = accuracy_score(y_train, y_pred_train)
+test_accuracy = accuracy_score(y_test, y_pred_test)
+
+print("Training Accuracy:", train_accuracy)
+print('-------------------------------------------------------------')
+print("Testing Accuracy:", test_accuracy)
+print('-------------------------------------------------------------')
+
+# Classification Report
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred_test))
+print('-------------------------------------------------------------')
+
+# Confusion Matrix
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred_test))
+
+
+
